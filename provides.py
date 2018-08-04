@@ -54,3 +54,7 @@ class SSLTerminationProvides(Endpoint):
     def send_status(self, status):
         for relation in self.relations:
             relation.to_publish['status'] = status
+
+    def set_public_ip_address(self, public_ip_address):
+        for relation in self.relations:
+            relation.to_publish['public_ip_address'] = public_ip_address

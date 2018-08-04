@@ -41,6 +41,13 @@ class SSLTerminationRequires(Endpoint):
         clear_flag(self.expand_name('endpoint.{endpoint_name}.departed'))
         clear_flag(self.expand_name('endpoint.{endpoint_name}.changed.status'))
 
+    @when_any('endpoint.{endpoint_name}.departed',
+              'endpoint.{endpoint_name}.changed.public_ip_address')
+    def public_address_changed(self):
+        set_flag(self.expand_name('endpoint.{endpoint_name}.new-public-ip-address'))
+        clear_flag(self.expand_name('endpoint.{endpoint_name}.departed'))
+        clear_flag(self.expand_name('endpoint.{endpoint_name}.changed.public-ip-address'))
+
     def send_cert_info(self, request):
         """request should be a dict with the following format:
         {
@@ -65,3 +72,11 @@ class SSLTerminationRequires(Endpoint):
                     'remote_unit_name': unit.unit_name
                 })
         return status
+
+    def get_public_ip_addresses(self):
+        public_addresses = []
+        for unit in self.all_joined_units:
+            public_ip_address = unit.received.get('public_ip_address')
+            if public_ip_address and public_ip_address not in public_addresses:
+                public_addresses.append(public_ip_address)
+        return public_addresses
